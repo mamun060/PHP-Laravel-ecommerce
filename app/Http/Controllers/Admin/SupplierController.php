@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
-use App\Models\Supplier;
 use Illuminate\Http\Request;
+use App\Http\Requests\SupplierRequest;
+use App\Models\Supplier;
+use Exception;
 
 class SupplierController extends Controller
 {
@@ -16,7 +17,12 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        //
+        $suppliers = Supplier::orderByDesc('id')->get();
+        // dd($suppliers);
+        // dd(auth()->guard('admin')->user()->id);
+        // $data['created_by'] = auth()->guard('admin')->user()->id ?? null;
+        // dd(auth()->user()->name);
+        return view('backend.pages.supplier.supplierlist', compact('suppliers'));
     }
 
     /**
@@ -35,9 +41,29 @@ class SupplierController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(SupplierRequest $request)
     {
-        //
+        try {
+            $data               = $request->all();
+            $data['created_by'] = auth()->guard('admin')->user()->id ?? null;
+
+            $supplier   = Supplier::create($data);
+            if(!$supplier)
+                throw new Exception("Unable to create Supplier!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Supplier Created Successfully!',
+                'data'      => $supplier
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage(),
+                'data'      => null
+            ]);
+        }
     }
 
     /**
@@ -71,8 +97,30 @@ class SupplierController extends Controller
      */
     public function update(Request $request, Supplier $supplier)
     {
-        //
+        try {
+
+            $data               = $request->all();
+            $data['updated_by'] = auth()->guard('admin')->user()->id ?? null;
+
+            $supplierstatus = $supplier->update($data);
+            if(!$supplierstatus)
+                throw new Exception("Unable to Update Supplier!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Supplier Updated Successfully!',
+                'data'      => $supplier->first()
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage(),
+                'data'      => null
+            ]);
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -82,6 +130,24 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier)
     {
-        //
+        try {
+
+            $isDeleted = $supplier->delete();
+            if(!$isDeleted)
+                throw new Exception("Unable to delete Supplier!", 403);
+                
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Supplier Deleted Successfully!',
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage()
+            ]);
+        }
     }
+
+
 }

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -14,7 +17,11 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('backend.dashboard');
+        $customers  = Customer::count();
+        $products   = Product::count();
+        $suppliers  = Supplier::count();
+        
+        return view('backend.dashboard' , compact('customers', 'products', 'suppliers'));
     }
 
     /**

@@ -4,76 +4,126 @@
 
 @section('content')
     <div>
-        <div class="container card p-3 shadow">
-            <h4 class="text-dark font-weight-bold text-dark">Add Order Information</h4>
+        <div class="container-fluid card p-3 shadow">
+
+            <div class=" py-3 d-flex justify-content-between align-items-center">
+                <h4 class="text-dark font-weight-bold text-dark">Add Order Information</h4>
+                <a class="text-white btn btn-sm btn-info float-right" href="{{ route('admin.ecom_orders.order_manage') }}"><i class="fa fa-arrow-left"> Back</i></a>
+            </div>
+        
             <div class="row">
 
-                <div class="col-md-12">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label for="product"> Product<span style="color: red;" class="req">*</span></label>
-                        <select name="product" class="product" data-required id="product" data-placeholder="Select Product"></select>
+                        <label for="order_no">Order NO</label>
+                        <input type="text" id="order_no" class="form-control" placeholder="Order NO">
                     </div>
-                    <span class="v-msg"></span>
                 </div>
 
-                <div class="col-md-6" data-col="col">
-                    <div class="form-group">
-                        <label for="customer"> Customer </label>
-                        <select name="customer" class="customer" data-required id="customer" data-placeholder="Select Customer"></select>
-                    </div>
-                    <span class="v-msg"></span>
-                </div>
-
-                <div class="col-md-6" data-col="col">
+                <div class="col-md-4" data-col="col">
                     <div class="form-group">
                         <label for="order_date">Order Date </label>
-                        <input type="text" data-required autocomplete="off" class="form-control" id="order_date" name="order_date">
+                        <input type="text" data-required autocomplete="off" class="form-control" id="order_date" name="order_date" placeholder="Order Date">
                     </div>
                     <span class="v-msg"></span>
                 </div>
 
+                <div class="col-md-4" data-col="col">
+                    {{-- @dd($customers) --}}
+                    <div class="form-group">
+                        <label for="customer"> Customer </label>
+                        <select name="customer" class="customer" data-required id="customer" data-placeholder="Select Customer">
+                            @if ($customers)
+                                @foreach ($customers as $customer)
+                                    <option value="{{ $customer->id }}">{{ $customer->customer_name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+                    <span class="v-msg"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="note">Note</label>
+                        <textarea name="note" id="note" cols="0" rows="3" class="form-control note" placeholder="Note"></textarea>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="shipping_address">Shipment</label>
+                        <textarea name="shipping_address" id="shipping_address" cols="0" rows="3" class="form-control shipment" placeholder="Shipment Address"></textarea>
+                    </div>
+                </div>
 
                 <div class="col-md-12">
                     <div class="table-responsive w-100">
                         <table class="table table-bordered table-sm">
-                            <thead class="bg-dark text-white">
+                            <thead class="bg-danger text-white">
                                 <tr>
                                     <th>Item Information</th>
                                     <th>Color</th>
                                     <th width="200">Size</th>
                                     <th width="100" class="text-center">Qty</th>
-                                    <th width="150" class="text-center">Unit Price</th>
-                                    <th width="150" class="text-center">Total</th>
+                                    <th width="150" class="text-center">Product Price</th>
+                                    {{-- <th width="150" class="text-center">Discount Price</th> --}}
+                                    <th width="100" class="text-center">Total</th>
                                     <th width="100" class="text-center">
-                                        <button class="btn btn-sm btn-info"><i class="fa fa-plus"></i> Add</button>
+                                        <button id="addNewRow" class="btn btn-sm btn-info"><i class="fa fa-plus"></i> Add</button>
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="addorder-body">
                                 <tr>
                                     <td>
-                                        <input type="text" class="form-control">
-                                    </td>
-                                    <td>
                                         <div class="form-group">
-                                            <select name="color" class="color" data-required id="color" data-placeholder="Select Color"></select>
+                                            <select name="product" class="product" data-required id="product" data-placeholder="Select Product">
+                                                @if ($products)
+                                                    @foreach ($products as $product)
+                                                        <option value="{{ $product->id }}">{{ $product->product_name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
                                         </div>
                                         <span class="v-msg"></span>
                                     </td>
                                     <td>
                                         <div class="form-group">
-                                            <select name="size" class="size" data-required id="size" multiple data-placeholder="Select Sizes"></select>
+                                            <select name="color" class="color" data-required id="color" data-placeholder="Select Color">
+                                                @if($colors)
+                                                    @foreach ($colors as $color)
+                                                        <option value="{{ $color->variant_name }}">{{ $color->variant_name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
                                         </div>
                                         <span class="v-msg"></span>
                                     </td>
+                                    <td>
+                                        <div class="form-group">
+                                            <select name="size" class="size" data-required id="size" data-placeholder="Select Sizes">
+                                                @if($sizes)
+                                                    @foreach ($sizes as $size)
+                                                        <option value="{{ $size->variant_name }}">{{ $size->variant_name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <span class="v-msg"></span>
+                                    </td>
+
                                     <td >
-                                        <input type="number" class="form-control">
+                                        <input type="text" id="order_qty" class="form-control calculatePrice order_qty">
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control">
+                                        <input type="text" id="product_price" class="form-control calculatePrice product_price">
                                     </td>
+                                    {{-- <td>
+                                        <input readonly value="00.00" type="text" id="discount_price" class="form-control discount_price">
+                                    </td> --}}
                                     <td>
-                                        <input type="number" class="form-control">
+                                        <input type="text" id="total_price" class="form-control total_price">
                                     </td>
                                     <td class="text-center">
                                         <i class="fa fa-times text-danger fa-lg" type="button"></i>
@@ -85,12 +135,15 @@
                 </div>
 
                 <div class="col-md-12 d-flex justify-content-end">
-                    <button class="btn btn-success text-right outline-none"> <i class="fa fa-save"></i> Submit</button>
+                    <button id="save_order_btn" class="btn btn-success text-right outline-none"> <i class="fa fa-save"></i> Submit</button>
                 </div>
 
             </div>
+
         </div>
     </div>
+
+
 @endsection
 
 @push('css')
@@ -101,11 +154,122 @@
 <script>
     $(document).ready(function(){
         init();
+        $(document).on('click','#save_order_btn', submitToDatabase)
+        $(document).on('input keyup change', ".calculatePrice", OrderPriceCalculation)
 
-        $(document).on('click','#add', createModal)
-        $(document).on('click','#category_save_btn', submitToDatabase)
+        $(document).on('click','#addNewRow', createNewRow)
+        $(document).on('click','.fa-times', removeRow)
+
     });
 
+    
+    function removeRow(){
+        let 
+        row = $(this).closest('tr'),
+        rows= $('#addorder-body').find('tr');
+
+        if(rows.length <= 1)
+        {
+            alert("You can't delete This Row ?")
+            return false;
+        }
+
+        row.remove();
+    }
+
+    function createNewRow(){
+        let ref = new Date().getTime();
+        let html = `<tr> 
+                        <td>
+                            <div class="form-group">
+                                <select name="product" class="product" data-required id="product_name_${ref}" data-placeholder="Select Product">
+                                    @if ($products)
+                                        @foreach ($products as $product)
+                                            <option value="{{ $product->id }}">{{ $product->product_name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <span class="v-msg"></span>
+                        </td>
+
+                        <td>
+                            <div class="form-group">
+                                <select name="color" class="color" data-required id="color_${ref}" data-placeholder="Select Color">
+                                    @if($colors)
+                                        @foreach ($colors as $color)
+                                            <option value="{{ $color->id }}">{{ $color->variant_name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <span class="v-msg"></span>
+                        </td>
+
+                        <td>
+                            <div class="form-group">
+                                <select name="size" class="size" data-required id="size_${ref}" data-placeholder="Select Sizes">
+                                    @if($sizes)
+                                        @foreach ($sizes as $size)
+                                            <option value="{{ $size->id }}">{{ $size->variant_name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <span class="v-msg"></span>
+                        </td>
+
+                        <td >
+                            <input type="text" id="order_qty" class="form-control calculatePrice order_qty">
+                        </td>
+                        <td>
+                            <input type="text" id="product_price" class="form-control calculatePrice product_price">
+                        </td>
+                        <td>
+                            <input type="text" id="total_price" class="form-control total_price">
+                        </td>
+                        
+                        <td class="text-center">
+                            <i class="fa fa-times text-danger fa-lg" type="button"></i>
+                        </td>
+                        </tr>`;
+
+
+        $('#addorder-body').append(html)
+
+        $(`#product_name_${ref}`).select2({
+            width : '100%',
+            theme : 'bootstrap4',
+            tags  : true,
+        }).val(null).trigger('change')
+        $(`#color_${ref}`).select2({
+            width : '100%',
+            theme : 'bootstrap4',
+        }).val(null).trigger('change')
+        $(`#size_${ref}`).select2({
+            width : '100%',
+            theme : 'bootstrap4',
+        }).val(null).trigger('change')
+    }
+
+    function OrderPriceCalculation(){
+
+            let rows        = $('#addorder-body').find('tr');
+            let total_qty   = 0;
+            let grandtotal  = 0;
+
+            [...rows].forEach( row => {
+                let qty = Number($(row).find('.order_qty').val() ?? 0);
+                let price = Number($(row).find('.product_price').val() ?? 0);
+
+                total_qty += qty;
+                grandtotal += price;
+
+                let total   = price * qty;
+                $(row).find('.total_price').val(total);
+
+            });
+    }
 
     function init(){
 
@@ -152,25 +316,57 @@
         // })
     }
 
-
-    function createModal(){
-        showModal('#categoryModal');
+    function submitToDatabase(){
+        ajaxFormToken();
+        let obj = {
+            url     : `{{ route('admin.ecom_orders.store')}}`, 
+            method  : "POST",
+            data    : formatData(),
+        };
+        ajaxRequest(obj, { reload: true, timer: 2000 })
     }
 
-    function submitToDatabase(){
-        //
+    function formatData(){
+        return {
+            order_no            : $('#order_no').val().trim(),
+            order_date          : $('#order_date').val(),
+            customer_id         : $('#customer').val(),
+            order_note          : $('#note').val().trim(),
+            shipping_address    : $('#shipping_address').val().trim(),
+            products            : productsInfo()
+        }
+    }
 
-        ajaxFormToken();
+    function productsInfo(){
 
-        let obj = {
-            url     : ``, 
-            method  : "POST",
-            data    : {},
-        };
+        let rows        = $('#addorder-body').find('tr');
+        let total_qty   = 0;
+        let grandtotal  = 0;
+        let productsArr =[];
 
-        ajaxRequest(obj);
+        [...rows].forEach( row => {
+            let  order_no       = $('#order_no').val().trim();
+            let product_id      = $(row).find('.product').val();
+            let product_name    = $(row).find('.product').find('option:selected').text();
+            let product_color   = $(row).find('.color').val();
+            let product_size    = $(row).find('.size').val();
+            let product_qty     = Number($(row).find('.order_qty').val() ?? 0);
+            let product_price   = Number($(row).find('.product_price').val() ?? 0);
+            let subtotal        = Number($(row).find('.total_price').val() ?? 0);
 
-        hideModal('#categoryModal');
+            productsArr.push({
+                order_no,
+                product_id,
+                product_name,
+                product_color,
+                product_size,
+                product_qty,
+                product_price,
+                subtotal
+            });
+        });
+
+        return productsArr;
     }
 
 </script>

@@ -25,8 +25,8 @@ class CreateSalesTable extends Migration
             $table->float('sold_total_price', 10, 3)->default(0)->comment('grand_total');
             $table->text('sales_note')->nullable();
             $table->timestamps();
-
-            $table->unsignedBigInteger('created_by')->nullable();
+            $table->integer('number_of_returned')->unsigned()->default(0);
+            $table->unsignedBigInteger('sold_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
         });
     }

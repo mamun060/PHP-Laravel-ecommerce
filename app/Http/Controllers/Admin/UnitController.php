@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-
 use App\Models\Unit;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\UnitRequest;
+use Exception;
 
 class UnitController extends Controller
 {
@@ -16,7 +17,8 @@ class UnitController extends Controller
      */
     public function index()
     {
-        //
+        $units = Unit::orderByDesc('id')->get();
+        return view('backend.pages.unit.unitlist', compact('units'));
     }
 
     /**
@@ -35,9 +37,28 @@ class UnitController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store( UnitRequest $request)
     {
-        //
+        try {
+            $data      = $request->all();
+            $data['created_by'] = auth()->guard('admin')->user()->id ?? null;
+            $unit   = Unit::create($data);
+            if(!$unit)
+                throw new Exception("Unable to create Unit!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Unit Created Successfully!',
+                'data'      => $unit
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage(),
+                'data'      => null
+            ]);
+        }
     }
 
     /**
@@ -71,7 +92,27 @@ class UnitController extends Controller
      */
     public function update(Request $request, Unit $unit)
     {
-        //
+        try {
+
+            $data       = $request->all();
+            $data['updated_by'] = auth()->guard('admin')->user()->id ?? null;
+            $unitstatus = $unit->update($data);
+            if(!$unitstatus)
+                throw new Exception("Unable to Update Unit!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Unit Updated Successfully!',
+                'data'      => $unit->first()
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage(),
+                'data'      => null
+            ]);
+        }
     }
 
     /**
@@ -82,6 +123,25 @@ class UnitController extends Controller
      */
     public function destroy(Unit $unit)
     {
-        //
+        try {
+
+            $isDeleted = $unit->delete();
+            if(!$isDeleted)
+                throw new Exception("Unable to delete unit!", 403);
+                
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Unit Deleted Successfully!',
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage()
+            ]);
+        }
     }
+
+
+
 }

@@ -1,6 +1,6 @@
 @extends('backend.layouts.master')
 
-@section('title', 'variant page')
+@section('title', 'Unit page')
 
 @section('content')
     <div>
@@ -17,90 +17,34 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>#SL</th>
                                 <th>Unit Name</th>
                                 <th>Unit Short Name</th>
+                                <th>Status</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
 
-                            <tr>
-                                <th>2001</th>
-                                <th>Kilogram</th>
-                                <th>kg</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-
-                            <tr>
-                                <th>2001</th>
-                                <th>Kilogram</th>
-                                <th>kg</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-
-                            <tr>
-                                <th>2001</th>
-                                <th>Kilogram</th>
-                                <th>kg</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-
-                            <tr>
-                                <th>2001</th>
-                                <th>Kilogram</th>
-                                <th>kg</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-
-                            <tr>
-                                <th>2001</th>
-                                <th>Kilogram</th>
-                                <th>kg</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-
-                            <tr>
-                                <th>2001</th>
-                                <th>Kilogram</th>
-                                <th>kg</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
+                            @isset($units)
+                                @foreach ($units as $unit)
+                                    <tr unit-data="{{json_encode($unit)}}">
+                                        <th>{{$loop->iteration}}</th>
+                                        <th>{{$unit->unit_name ?? 'N/A' }}</th>
+                                        <th>{{$unit->unit_short_name ?? 'N/A' }}</th>
+                                        <th class="text-center">
+                                            {!! $unit->is_active ? '<span class="badge badge-success">Active </span>' : '<span class="badge badge-danger">In-Active </span>' !!}
+                                        </th>
+                                        <th class="text-center">
+                                            {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
+                                            <a href="javacript:void(0)" class="fa fa-edit mx-2 text-warning text-decoration-none update"></a>
+                                            <a href="{{ route('admin.unit.destroy', $unit->id) }}" class="fa fa-trash text-danger text-decoration-none delete"></a>
+                                        </th>
+                                    </tr>
+                                @endforeach
+                            @endisset
                             
                         </tbody>
-                        {{-- <tfoot>
-                            <tr>
-                                <th>ID</th>
-                                <th>Category Name</th>
-                                <th>Category Description</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </tfoot> --}}
 
                     </table>
                 </div>
@@ -111,12 +55,12 @@
 
     {{-- Variant modal  --}}
 
-    <div class="modal fade" id="categoryModal"  tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" role="dialog" data-backdrop="static" data-keyboard="false" aria-modal="true">
+    <div class="modal fade" id="unitModal"  tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" role="dialog" data-backdrop="static" data-keyboard="false" aria-modal="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
     
                 <div class="modal-header">
-                    <h5 class="modal-title font-weight-bold modal-heading" id="exampleModalLabel">Create Unit</h5>
+                    <h5 class="modal-title font-weight-bold modal-heading" id="exampleModalLabel"><span class="heading">Create</span> Unit</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -134,14 +78,24 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="">Unit Name</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" id="unit_name">
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="">Unit Short Name</label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" id="unit_short_name">
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Is Active</label><br>
+                                    <input type="radio" name="is_active" id="isActive" checked>
+                                    <label for="isActive">Active</label>
+                                    <input type="radio" name="is_active" id="isInActive">
+                                    <label for="isInActive">Inactive</label>
                                 </div>
                             </div>
                             
@@ -152,7 +106,8 @@
                 <div class="modal-footer">
                     <div class="w-100">
                         <button type="button" id="reset" class="btn btn-sm btn-secondary"><i class="fa fa-sync"></i> Reset</button>
-                        <button id="category_save_btn" type="button" class="save_btn btn btn-sm btn-success float-right"><i class="fa fa-save"></i> <span>Save</span></button>
+                        <button id="unit_save_btn" type="button" class="save_btn btn btn-sm btn-success float-right"><i class="fa fa-save"></i> <span>Save</span></button>
+                        <button id="unit_update_btn" type="button" class="save_btn btn btn-sm btn-success float-right d-none"><i class="fa fa-save"></i> <span>Update</span></button>
                         <button type="button" class="btn btn-sm btn-danger float-right mx-1" data-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -180,7 +135,13 @@
             init();
 
             $(document).on('click','#add', createModal)
-            $(document).on('click','#category_save_btn', submitToDatabase)
+            $(document).on('click','#unit_save_btn', submitToDatabase)
+
+            $(document).on('click','#reset', resetForm)
+            $(document).on('click' , '.delete', deleteToDatabase)
+
+            $(document).on('click', '.update', showUpdateModal)
+            $(document).on('click', '#unit_update_btn', updateToDatabase)
         });
 
 
@@ -188,7 +149,7 @@
 
             let arr=[
                 {
-                    dropdownParent  : '#categoryModal',
+                    dropdownParent  : '#unitModal',
                     selector        : `#stuff`,
                     type            : 'select',
                 },
@@ -218,9 +179,49 @@
             // })
         }
 
+        function deleteToDatabase(e){
+            e.preventDefault();
+
+            let elem = $(this),
+            href = elem.attr('href');
+            if(confirm("Are you sure to delete the record?")){
+                ajaxFormToken();
+
+                $.ajax({
+                    url     : href, 
+                    method  : "DELETE",
+                    data    : {},
+                    success(res){
+
+                        // console.log(res?.data);
+                        if(res?.success){
+                            _toastMsg(res?.msg ?? 'Success!', 'success');
+                            resetData();
+
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        }
+                    },
+                    error(err){
+                        console.log(err);
+                        _toastMsg((err.responseJSON?.msg) ?? 'Something wents wrong!')
+                    },
+                });
+            }
+        }
 
         function createModal(){
-            showModal('#categoryModal');
+            showModal('#unitModal');
+
+            $('#unit_save_btn').removeClass('d-none');
+            $('#unit_update_btn').addClass('d-none');
+            $('#unitModal .heading').text('Create');
+            resetData()
+        }
+
+        function resetForm(){
+            resetData()
         }
 
         function submitToDatabase(){
@@ -229,14 +230,76 @@
             ajaxFormToken();
 
             let obj = {
-                url     : ``, 
+                url     : `{{ route('admin.unit.store')}}`, 
                 method  : "POST",
-                data    : {},
+                data    : formatData(),
             };
 
-            ajaxRequest(obj);
+            ajaxRequest(obj, { reload: true, timer: 2000 })
 
-            hideModal('#categoryModal');
+            resetData()
+
+            hideModal('#unitModal');
+        }
+
+        function showUpdateModal(){
+            resetData();
+
+            let unit = $(this).closest('tr').attr('unit-data');
+
+            if(unit){
+
+                $('#unit_save_btn').addClass('d-none');
+                $('#unit_update_btn').removeClass('d-none');
+
+                unit = JSON.parse(unit);
+
+                $('#unitModal .heading').text('Edit').attr('data-id', unit?.id)
+
+                $('#unit_name').val(unit?.unit_name)
+                $('#unit_short_name').val(unit?.unit_short_name)
+                
+                if(unit?.is_active){
+                    $('#isActive').prop('checked',true)
+                }else{
+                    $('#isInActive').prop('checked',true)
+                }
+
+                showModal('#unitModal');
+            }
+        }
+
+
+        function updateToDatabase(){
+            ajaxFormToken();
+
+            let id  = $('#unitModal .heading').attr('data-id');
+            let obj = {
+                url     : `{{ route('admin.unit.update', '' ) }}/${id}`, 
+                method  : "PUT",
+                data    : formatData(),
+            };
+
+            ajaxRequest(obj, { reload: true, timer: 2000 })
+
+            resetData();
+
+            hideModal('#unitModal');
+        }
+
+
+        function formatData(){
+            return {
+                unit_name       : $('#unit_name').val().trim(),
+                unit_short_name : $('#unit_short_name').val(),
+                is_active       : $('#isActive').is(':checked') ? 1 : 0,
+            }
+        }
+
+        function resetData(){
+            $('#unit_name').val(null),
+            $('#unit_short_name').val(null),
+            $('#isActive').prop('checked', true)
         }
 
     </script>

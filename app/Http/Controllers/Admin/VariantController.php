@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
-use App\Models\Variant;
 use Illuminate\Http\Request;
+use App\Http\Requests\VariantRequest;
+use App\Models\ProductVariantPrice;
+use App\Models\Variant;
+use Exception;
 
 class VariantController extends Controller
 {
@@ -16,7 +18,8 @@ class VariantController extends Controller
      */
     public function index()
     {
-        //
+        $variants = Variant::orderByDesc('id')->get();
+        return view('backend.pages.variant.variantlist', compact('variants'));
     }
 
     /**
@@ -35,9 +38,29 @@ class VariantController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(VariantRequest $request)
     {
-        //
+        try {
+            $data               = $request->all();
+            $data['created_by'] = auth()->guard('admin')->user()->id ?? null;
+
+            $variant   = Variant::create($data);
+            if(!$variant)
+                throw new Exception("Unable to create variant!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Variant Created Successfully!',
+                'data'      => $variant
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage(),
+                'data'      => null
+            ]);
+        }
     }
 
     /**
@@ -46,9 +69,10 @@ class VariantController extends Controller
      * @param  \App\Models\Variant  $variant
      * @return \Illuminate\Http\Response
      */
-    public function show(Variant $variant)
+    public function show($product_id)
     {
-        //
+        $items = ProductVariantPrice::where('product_id', $product_id)->get();
+        return response()->json($items);
     }
 
     /**
@@ -71,7 +95,28 @@ class VariantController extends Controller
      */
     public function update(Request $request, Variant $variant)
     {
-        //
+        try {
+
+            $data               = $request->all();
+            $data['updated_by'] = auth()->guard('admin')->user()->id ?? null;
+
+            $variantstatus = $variant->update($data);
+            if(!$variantstatus)
+                throw new Exception("Unable to Update variant!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Variant Updated Successfully!',
+                'data'      => $variant->first()
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage(),
+                'data'      => null
+            ]);
+        }
     }
 
     /**
@@ -82,6 +127,25 @@ class VariantController extends Controller
      */
     public function destroy(Variant $variant)
     {
-        //
+        try {
+
+            $isDeleted = $variant->delete();
+            if(!$isDeleted)
+                throw new Exception("Unable to delete variant!", 403);
+                
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Variant Deleted Successfully!',
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage()
+            ]);
+        }
     }
+
+
+
 }

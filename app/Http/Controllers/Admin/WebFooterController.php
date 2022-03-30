@@ -3,10 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\WebFooterRequest;
+use App\Models\WebFooter;
+use Exception;
 use Illuminate\Http\Request;
+use App\Http\Services\ImageChecker;
 
 class WebFooterController extends Controller
 {
+    use ImageChecker;
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +19,8 @@ class WebFooterController extends Controller
      */
     public function index()
     {
-        return view('backend.pages.cms_settings.webfooter');
+        $footerdatas = WebFooter::orderByDesc('id')->get();
+        return view('backend.pages.cms_settings.webfooter', compact('footerdatas'));
     }
 
     /**
@@ -33,9 +39,40 @@ class WebFooterController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(WebFooterRequest $request)
     {
-        //
+        try {
+
+            $footer_logo    = $request->footer_logo;
+            $data           = $request->all();
+            $fileLocation   = 'assets/img/blank-img.png';
+
+            if($footer_logo){
+                //file, dir
+                $fileResponse = $this->uploadFile($footer_logo, 'WebFooter/');
+                if (!$fileResponse['success'])
+                    throw new Exception($fileResponse['msg'], $fileResponse['code'] ?? 403);
+
+                $fileLocation = $fileResponse['fileLocation'];
+            }
+
+            $data['footer_logo'] = $fileLocation;
+            $category = WebFooter::create($data);
+            if(!$category)
+                throw new Exception("Unable to create Footer About!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Footer About Created Successfully!',
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage(),
+                'data'      => null
+            ]);
+        }
     }
 
     /**
@@ -67,9 +104,44 @@ class WebFooterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(WebFooterRequest $request, WebFooter $webfooter)
     {
-        //
+        try {
+
+            if(!$webfooter)
+                throw new Exception("No record Found!", 404);
+            $data           = $request->all();
+            $footer_logo   = $request->footer_logo;
+            $fileLocation   = $webfooter->footer_logo;
+
+            if ($footer_logo) {
+                if($fileLocation){
+                    $this->deleteImage($fileLocation);
+                }
+                
+                $fileResponse = $this->uploadFile($footer_logo, 'WebFooter/');
+                if (!$fileResponse['success'])
+                    throw new Exception($fileResponse['msg'], $fileResponse['code'] ?? 403);
+
+                $fileLocation = $fileResponse['fileLocation'];
+            }
+
+            $data['footer_logo'] = $fileLocation;
+            $footerStatus = $webfooter->update($data);
+            if(!$footerStatus)
+                throw new Exception("Unable to Update Footer About!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Category Updated Footer About!'
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -78,8 +150,26 @@ class WebFooterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(WebFooter $webfooter)
     {
-        //
+        try {
+
+            $isDeleted = $webfooter->delete();
+            if(!$isDeleted)
+                throw new Exception("Unable to delete Footer About!", 403);
+                
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Foote About Deleted Successfully!',
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage()
+            ]);
+        }
     }
+
+
 }

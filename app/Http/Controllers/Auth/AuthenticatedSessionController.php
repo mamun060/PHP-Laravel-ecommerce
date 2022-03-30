@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Session;
+use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Support\Facades\Route;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -17,6 +20,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
+        
+        if(!preg_match("/home|about-us/im", URL::previous())){
+            Session::put('url.intended', URL::previous());
+        }else{
+            Session::forget('url.intended');
+        }
+
         return view('auth.login');
     }
 
@@ -32,7 +42,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        $redirectURL = Session::get('url.intended') ?? RouteServiceProvider::HOME;
+
+        return redirect()->intended($redirectURL);
     }
 
     /**

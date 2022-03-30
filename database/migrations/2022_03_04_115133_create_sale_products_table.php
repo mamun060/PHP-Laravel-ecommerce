@@ -23,7 +23,9 @@ class CreateSaleProductsTable extends Migration
             $table->text('product_sizes')->nullable();
             $table->unsignedBigInteger('product_qty')->default(0);
             $table->float('product_price', 10, 3)->default(0);
+            $table->float('sold_price', 10, 3)->default(0);
             $table->float('subtotal', 10, 3)->default(0);
+            $table->boolean('is_returned')->default(0);
             $table->timestamps();
         });
     }

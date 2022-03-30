@@ -16,6 +16,7 @@ class CreateProductBrandTable extends Migration
         Schema::create('product_brand', function (Blueprint $table) {
             $table->bigInteger('product_id')->unsigned();
             $table->bigInteger('brand_id')->unsigned();
+            $table->string('brand_name')->nullable();
             $table->primary(['product_id', 'brand_id']);
         });
     }

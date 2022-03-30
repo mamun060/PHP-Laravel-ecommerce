@@ -21,7 +21,6 @@ class CreateVariantsTable extends Migration
             $table->boolean('is_active')->default(1);
             $table->timestamps();
 
-
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
         });

@@ -20,10 +20,12 @@ class CreateSuppliersTable extends Migration
             $table->string('supplier_phone')->unique()->nullable();
             $table->string('supplier_address')->nullable();
             $table->boolean('is_active')->default(1);
-            $table->timestamps();
-
+            
+            $table->float('current_balance', 10, 3)->default(0);
+            
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
+            $table->timestamps();
         });
     }
 

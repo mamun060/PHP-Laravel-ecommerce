@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SocialIconRequest;
+use App\Models\SocialIcon;
+use Exception;
 use Illuminate\Http\Request;
+
 
 class SocialIconController extends Controller
 {
@@ -14,7 +18,9 @@ class SocialIconController extends Controller
      */
     public function index()
     {
-        return view('backend.pages.cms_settings.socialicon');
+        $sociallists = SocialIcon::orderByDesc('id')->get();
+        // dd($sociallists);
+        return view('backend.pages.cms_settings.socialicon', compact('sociallists'));
     }
 
     /**
@@ -33,9 +39,27 @@ class SocialIconController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(SocialIconRequest $request)
     {
-        //
+        try {
+            $data      = $request->all();
+            $unit   = SocialIcon::create($data);
+            if(!$unit)
+                throw new Exception("Unable to create Social Link!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Social Link Created Successfully!',
+                'data'      => $unit
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage(),
+                'data'      => null
+            ]);
+        }
     }
 
     /**
@@ -67,9 +91,27 @@ class SocialIconController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request,  SocialIcon $socialicon)
     {
-        //
+        try {
+
+            $data       = $request->all();
+            $sociallinkstatus = $socialicon->update($data);
+            if(!$sociallinkstatus)
+                throw new Exception("Unable to Update Social Link!", 403);
+
+            return response()->json([
+                'success'   => true,
+                'msg'       => 'Social Link Updated Successfully!',
+                'data'      => $socialicon->first()
+            ]);
+                
+        } catch (\Exception $th) {
+            return response()->json([
+                'success'   => false,
+                'msg'       => $th->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -78,8 +120,28 @@ class SocialIconController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy( SocialIcon $socialicon )
     {
-        //
+        {
+            try {
+    
+                $isDeleted = $socialicon->delete();
+                if(!$isDeleted)
+                    throw new Exception("Unable to delete Social Icon!", 403);
+                    
+                return response()->json([
+                    'success'   => true,
+                    'msg'       => 'Social Icon Deleted Successfully!',
+                ]);
+    
+            } catch (\Throwable $th) {
+                return response()->json([
+                    'success'   => false,
+                    'msg'       => $th->getMessage()
+                ]);
+            }
+        }
     }
+
+
 }

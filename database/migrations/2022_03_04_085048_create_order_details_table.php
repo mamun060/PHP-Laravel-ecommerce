@@ -17,12 +17,13 @@ class CreateOrderDetailsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id')->nullable();
             $table->string('order_no')->nullable();
-            $table->text('product_id')->nullable();
+            $table->unsignedBigInteger('product_id')->nullable();
             $table->text('product_name')->nullable();
-            $table->text('product_color')->nullable();
-            $table->text('product_size')->nullable();
+            $table->string('product_color')->nullable();
+            $table->string('product_size')->nullable();
             $table->unsignedBigInteger('product_qty')->default(0);
             $table->float('product_price', 10, 3)->default(0);
+            $table->float('discount_price', 10, 3)->default(0);
             $table->float('wholesale_price', 10, 3)->default(0);
             $table->float('subtotal', 10, 3)->default(0);
             $table->timestamps();

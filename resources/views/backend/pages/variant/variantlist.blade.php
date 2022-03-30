@@ -17,65 +17,33 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>#SL</th>
                                 <th>Variant Name</th>
                                 <th>Variant Type</th>
+                                <th>Status</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
 
-                            <tr>
-                                <th>2001</th>
-                                <th>Red</th>
-                                <th>Color</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>2001</th>
-                                <th>Red</th>
-                                <th>Color</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>2001</th>
-                                <th>Red</th>
-                                <th>Color</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>2001</th>
-                                <th>Red</th>
-                                <th>Color</th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
+                            @isset($variants)
+                                @foreach ($variants as $variant)
+                                    <tr variant-data="{{json_encode($variant)}}">
+                                        <th>{{$loop->iteration}}</th>
+                                        <th>{{$variant->variant_name ?? 'N/A'}}</th>
+                                        <th>{{$variant->variant_type ?? 'N/A'}}</th>
+                                        <th class="text-center">
+                                            {!! $variant->is_active ? '<span class="badge badge-success">Active </span>' : '<span class="badge badge-danger">In-Active </span>' !!}
+                                        </th>
+                                        <th class="text-center">
+                                            <a href="javascript:void(0)" class="fa fa-edit mx-2 text-warning text-decoration-none update"></a>
+                                            <a href="{{ route('admin.variant.destroy', $variant->id ) }}" class="fa fa-trash text-danger text-decoration-none delete"></a>
+                                        </th>
+                                    </tr>
+                                @endforeach
+                            @endisset
                             
                         </tbody>
-                        {{-- <tfoot>
-                            <tr>
-                                <th>ID</th>
-                                <th>Category Name</th>
-                                <th>Category Description</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </tfoot> --}}
 
                     </table>
                 </div>
@@ -86,12 +54,12 @@
 
     {{-- Variant modal  --}}
 
-    <div class="modal fade" id="categoryModal"  tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" role="dialog" data-backdrop="static" data-keyboard="false" aria-modal="true">
+    <div class="modal fade" id="variantModal"  tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" role="dialog" data-backdrop="static" data-keyboard="false" aria-modal="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
     
                 <div class="modal-header">
-                    <h5 class="modal-title font-weight-bold modal-heading" id="exampleModalLabel">Create Variant</h5>
+                    <h5 class="modal-title font-weight-bold modal-heading" id="exampleModalLabel"><span class="heading">Create</span> Variant</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -109,17 +77,38 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="">Variant Name</label>
+                                    <input type="text" class="form-control" id="variant_name">
+                                </div>
+                            </div>
+
+                            {{-- <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="">Variant Type</label>
                                     <input type="text" class="form-control">
+                                </div>
+                            </div> --}}
+                            
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="label">Variant Type</div>
+                                    <select name="" id="variant_type" class="form-control">
+                                        <option>Select Variant</option>
+                                        <option value="color">Color</option>
+                                        <option value="size">Size</option>
+                                    </select>
                                 </div>
                             </div>
 
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="">Variant Type</label>
-                                    <input type="text" class="form-control">
+                                    <label>Is Active</label><br>
+                                    <input type="radio" name="is_active" id="isActive" checked>
+                                    <label for="isActive">Active</label>
+                                    <input type="radio" name="is_active" id="isInActive">
+                                    <label for="isInActive">Inactive</label>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -127,7 +116,8 @@
                 <div class="modal-footer">
                     <div class="w-100">
                         <button type="button" id="reset" class="btn btn-sm btn-secondary"><i class="fa fa-sync"></i> Reset</button>
-                        <button id="category_save_btn" type="button" class="save_btn btn btn-sm btn-success float-right"><i class="fa fa-save"></i> <span>Save</span></button>
+                        <button id="variant_save_btn" type="button" class="save_btn btn btn-sm btn-success float-right"><i class="fa fa-save"></i> <span>Save</span></button>
+                        <button id="variant_update_btn" type="button" class="save_btn btn btn-sm btn-success float-right d-none"><i class="fa fa-save"></i> <span>Update</span></button>
                         <button type="button" class="btn btn-sm btn-danger float-right mx-1" data-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -155,7 +145,13 @@
             init();
 
             $(document).on('click','#add', createModal)
-            $(document).on('click','#category_save_btn', submitToDatabase)
+            $(document).on('click','#variant_save_btn', submitToDatabase)
+
+            $(document).on('click', '#reset', resetForm)
+            $(document).on('click', '.delete', deleteToDatabase)
+
+            $(document).on('click', '.update', showUpdateModal)
+            $(document).on('click', '#variant_update_btn', updateToDatabase)
         });
 
 
@@ -163,7 +159,7 @@
 
             let arr=[
                 {
-                    dropdownParent  : '#categoryModal',
+                    dropdownParent  : '#variantModal',
                     selector        : `#stuff`,
                     type            : 'select',
                 },
@@ -193,9 +189,48 @@
             // })
         }
 
+        function deleteToDatabase(e){
+            e.preventDefault();
+
+            let elem = $(this),
+            href = elem.attr('href');
+            if(confirm("Are you sure to delete the record?")){
+                ajaxFormToken();
+
+                $.ajax({
+                    url     : href, 
+                    method  : "DELETE",
+                    data    : {},
+                    success(res){
+
+                        // console.log(res?.data);
+                        if(res?.success){
+                            _toastMsg(res?.msg ?? 'Success!', 'success');
+                            resetData();
+
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        }
+                    },
+                    error(err){
+                        console.log(err);
+                        _toastMsg((err.responseJSON?.msg) ?? 'Something wents wrong!')
+                    },
+                });
+            }
+        }
 
         function createModal(){
-            showModal('#categoryModal');
+            showModal('#variantModal');
+            $('#variant_save_btn').removeClass('d-none');
+            $('#variant_update_btn').addClass('d-none');
+            $('#variantModal .heading').text('Create');
+            resetData();
+        }
+
+        function resetForm(){
+            resetData();
         }
 
         function submitToDatabase(){
@@ -204,14 +239,73 @@
             ajaxFormToken();
 
             let obj = {
-                url     : ``, 
+                url     : `{{route('admin.variant.store')}}`, 
                 method  : "POST",
-                data    : {},
+                data    : formatData(),
             };
 
-            ajaxRequest(obj);
+            ajaxRequest(obj, { reload: true, timer: 2000 })
 
-            hideModal('#categoryModal');
+            resetData();
+            hideModal('#variantModal');
+        }
+
+        function showUpdateModal(){
+            resetData();
+
+            let variant = $(this).closest('tr').attr('variant-data');
+
+            if(variant){
+
+                $('#variant_save_btn').addClass('d-none');
+                $('#variant_update_btn').removeClass('d-none');
+
+                variant = JSON.parse(variant);
+
+                $('#variantModal .heading').text('Edit').attr('data-id', variant?.id)
+
+                $('#variant_name').val(variant?.variant_name)
+                $('#variant_type').val(variant?.variant_type)
+
+                if(variant?.is_active){
+                    $('#isActive').prop('checked',true)
+                }else{
+                    $('#isInActive').prop('checked',true)
+                }
+
+                showModal('#variantModal');
+            }
+        }
+
+        function updateToDatabase(){
+            ajaxFormToken();
+
+            let id  = $('#variantModal .heading').attr('data-id');
+            let obj = {
+                url     : `{{ route('admin.variant.update', '' ) }}/${id}`, 
+                method  : "PUT",
+                data    : formatData(),
+            };
+
+            ajaxRequest(obj, { reload: true, timer: 2000 })
+
+            resetData();
+
+            hideModal('#variantModal');
+        }
+
+        function formatData(){
+            return {
+                variant_name   : $('#variant_name').val().trim(),
+                variant_type   : $('#variant_type').val(),
+                is_active      : $('#isActive').is(':checked') ? 1 : 0,
+            }
+        }
+
+        function resetData(){
+            $('#variant_name').val(null),
+            $('#variant_type').val(null),
+            $('#isActive').prop('checked', true)
         }
 
     </script>

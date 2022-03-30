@@ -1,6 +1,6 @@
 @extends('backend.layouts.master')
 
-@section('title','Category pages')
+@section('title','Currency page')
 
 @section('content')
     <div>
@@ -17,7 +17,7 @@
                     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th>SL</th>
+                                <th>#SL</th>
                                 <th>Currency Name<i class="wi wi-night-alt-thunderstorm"></i></th>
                                 <th>Currency Icon</th>
                                 <th>Position</th>
@@ -26,86 +26,30 @@
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            <tr>
-                                <th>1001</th>
-                                <th>BDT</th>
-                                <th>Tk</th>
-                                <th>left</th>
-                                <th>0</th>
-                                <th class="text-center">
-                                <span class="badge badge-success">
-                                    Active
-                                </span>
-                                </th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>1001</th>
-                                <th>BDT</th>
-                                <th>Tk</th>
-                                <th>left</th>
-                                <th>0</th>
-                                <th class="text-center">
-                                <span class="badge badge-success">
-                                    Active
-                                </span>
-                                </th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>1001</th>
-                                <th>BDT</th>
-                                <th>Tk</th>
-                                <th>left</th>
-                                <th>0</th>
-                                <th class="text-center">
-                                <span class="badge badge-success">
-                                    Active
-                                </span>
-                                </th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>1001</th>
-                                <th>BDT</th>
-                                <th>Tk</th>
-                                <th>left</th>
-                                <th>0</th>
-                                <th class="text-center">
-                                <span class="badge badge-success">
-                                    Active
-                                </span>
-                                </th>
-                                <th class="text-center">
-                                    {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
-                                    <a href="" class="fa fa-edit mx-2 text-warning text-decoration-none"></a>
-                                    <a href="javascript:void(0)" class="fa fa-trash text-danger text-decoration-none"></a>
-                                </th>
-                            </tr>
+
+                            @isset($currencies)
+                                @foreach ($currencies as $currency)
+                                    <tr currency-data="{{json_encode($currency)}}">
+                                        <th>{{ $loop->iteration ?? 'N/A'}}</th>
+                                        <th>{{ $currency->currency_name  ?? 'N/A' }}</th>
+                                        <th>{{ $currency->currency_icon ?? 'N/A' }}</th>
+                                        <th>{{ $currency->currency_position  ?? 'N/A' }}</th>
+                                        <th>{{ $currency->currency_conversion_rate  ?? 'N/A' }}</th>
+                                        <th class="text-center">
+                                            {!! $currency->is_active ? '<span class="badge badge-success">Active </span>' : '<span class="badge badge-danger">In-Active </span>' !!}
+                                        </th>
+                                        <th class="text-center">
+                                            {{-- <a href="" class="fa fa-eye text-info text-decoration-none"></a> --}}
+                                            <a href="javascript:void(0)" class="fa fa-edit mx-2 text-warning text-decoration-none update"></a>
+                                            <a href="{{ route('admin.currency.destroy', $currency->id )}}" class="fa fa-trash text-danger text-decoration-none delete"></a>
+                                        </th>
+                                    </tr> 
+                                @endforeach
+                            @endisset
                            
                         </tbody>
-                        {{-- <tfoot>
-                            <tr>
-                                <th>ID</th>
-                                <th>Category Name</th>
-                                <th>Category Description</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </tfoot> --}}
 
                     </table>
                 </div>
@@ -114,12 +58,12 @@
     
     </div>
 
-    <div class="modal fade" id="categoryModal"  tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" role="dialog" data-backdrop="static" data-keyboard="false" aria-modal="true">
+    <div class="modal fade" id="currencyModal"  tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" role="dialog" data-backdrop="static" data-keyboard="false" aria-modal="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
     
                 <div class="modal-header">
-                    <h5 class="modal-title font-weight-bold modal-heading" id="exampleModalLabel">Currency</h5>
+                    <h5 class="modal-title font-weight-bold modal-heading" id="exampleModalLabel"><span class="heading">Create</span> Currency</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -132,36 +76,46 @@
                                 <h5 class="font-weight-bold bg-custom-booking">Currency Information</h5>
                                 <hr>
                             </div>
+                            
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="">Currency Name<span style="color: red;" class="req">*</span></label>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" id="currency_name">
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="currency_position">Currency Position</label>
-                                    <select name="currency_position" class="currency_position" data-required id="currency_position" data-placeholder="Select a Status"></select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="">Conversion Rate</label>
-                                    <input type="number" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-md-6" data-col="col">
-                                <div class="form-group">
-                                    <label for="stuff">Select Status<span style="color: red;" class="req">*</span></label>
-                                    <select name="stuff" class="stuff" data-required id="stuff" data-placeholder="Select a Status"></select>
-                                </div>
-                                <span class="v-msg"></span>
-                            </div>
-    
+
+                            
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="">Currency Icon</label>
-                                    <input class="d-flex align-items-center" type="file" name="" id="">
+                                    <input class="form-control" type="text" name="" id="currency_icon" placeholder="Example: $, ৳, €, £" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="currency_position">Currency Position</label>
+                                    <select name="currency_position" class="currency_position" data-required id="currency_position" data-placeholder="Select a Status">
+                                        <option selected value="left">Left</option>
+                                        <option value="right">Right</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="">Conversion Rate</label>
+                                    <input type="number" class="form-control" id="conversation_rate">
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Is Active</label><br>
+                                    <input type="radio" name="is_active" id="isActive" checked>
+                                    <label for="isActive">Active</label>
+                                    <input type="radio" name="is_active" id="isInActive">
+                                    <label for="isInActive">Inactive</label>
                                 </div>
                             </div>
     
@@ -172,7 +126,8 @@
                 <div class="modal-footer">
                     <div class="w-100">
                         <button type="button" id="reset" class="btn btn-sm btn-secondary"><i class="fa fa-sync"></i> Reset</button>
-                        <button id="category_save_btn" type="button" class="save_btn btn btn-sm btn-success float-right"><i class="fa fa-save"></i> <span>Save</span></button>
+                        <button id="currency_save_btn" type="button" class="save_btn btn btn-sm btn-success float-right"><i class="fa fa-save"></i> <span>Save</span></button>
+                        <button id="currency_update_btn" type="button" class="save_btn btn btn-sm btn-success float-right d-none"><i class="fa fa-save"></i> <span>Update</span></button>
                         <button type="button" class="btn btn-sm btn-danger float-right mx-1" data-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -200,7 +155,13 @@
             init();
 
             $(document).on('click','#add', createModal)
-            $(document).on('click','#category_save_btn', submitToDatabase)
+            $(document).on('click','#currency_save_btn', submitToDatabase)
+
+            $(document).on('click','#reset', resetForm)
+            $(document).on('click' , '.delete', deleteToDatabase)
+
+            $(document).on('click','.update', showUpdateModal)
+            $(document).on('click' , '#currency_update_btn', updateToDatabase)
         });
 
 
@@ -208,12 +169,12 @@
 
             let arr=[
                 {
-                    dropdownParent  : '#categoryModal',
+                    dropdownParent  : '#currencyModal',
                     selector        : `#stuff`,
                     type            : 'select',
                 },
                 {
-                    dropdownParent  : '#categoryModal',
+                    dropdownParent  : '#currencyModal',
                     selector        : `#currency_position`,
                     type            : 'select',
                 },
@@ -243,9 +204,48 @@
             // })
         }
 
+        function deleteToDatabase(e){
+            e.preventDefault();
+
+            let elem = $(this),
+            href = elem.attr('href');
+            if(confirm("Are you sure to delete the record?")){
+                ajaxFormToken();
+
+                $.ajax({
+                    url     : href, 
+                    method  : "DELETE",
+                    data    : {},
+                    success(res){
+
+                        // console.log(res?.data);
+                        if(res?.success){
+                            _toastMsg(res?.msg ?? 'Success!', 'success');
+                            resetData();
+
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        }
+                    },
+                    error(err){
+                        console.log(err);
+                        _toastMsg((err.responseJSON?.msg) ?? 'Something wents wrong!')
+                    },
+                });
+            }
+        }
 
         function createModal(){
-            showModal('#categoryModal');
+            showModal('#currencyModal');
+            $('#currency_save_btn').removeClass('d-none');
+            $('#currency_update_btn').addClass('d-none');
+            $('#currencyModal .heading').text('Create');
+            resetData();
+        }
+
+        function resetForm(){
+            resetData()
         }
 
         function submitToDatabase(){
@@ -256,12 +256,82 @@
             let obj = {
                 url     : ``, 
                 method  : "POST",
-                data    : {},
+                data    : formatData(),
             };
 
-            ajaxRequest(obj);
+            ajaxRequest(obj, { reload: true, timer: 2000 })
 
-            hideModal('#categoryModal');
+            resetData();
+
+            hideModal('#currencyModal');
+        }
+
+        function showUpdateModal(){
+            resetData();
+
+            let currency = $(this).closest('tr').attr('currency-data');
+
+            if(currency){
+
+                $('#currency_save_btn').addClass('d-none');
+                $('#currency_update_btn').removeClass('d-none');
+
+                // currency = JSON.parse(currency);
+                currency = JSON.parse(currency);
+
+
+                $('#currencyModal .heading').text('Edit').attr('data-id', currency?.id)
+
+                $('#currency_name').val(currency?.currency_name)
+                $('#currency_icon').val(currency?.currency_icon)
+                $('#currency_position').val(currency?.currency_position)
+                $('#conversation_rate').val(currency?.currency_conversion_rate)
+
+                if(currency?.is_active){
+                    $('#isActive').prop('checked',true)
+                }else{
+                    $('#isInActive').prop('checked',true)
+                }
+
+                showModal('#currencyModal');
+            }
+        }
+
+
+        function updateToDatabase(){
+            ajaxFormToken();
+
+            let id  = $('#currencyModal .heading').attr('data-id');
+            let obj = {
+                url     : `{{ route('admin.currency.update', '' ) }}/${id}`, 
+                method  : "PUT",
+                data    : formatData(),
+            };
+
+            ajaxRequest(obj, { reload: true, timer: 2000 })
+
+            resetData();
+
+            hideModal('#currencyModal');
+        }
+
+
+        function formatData(){
+            return {
+                currency_name              : $('#currency_name').val().trim(),
+                currency_icon              : $('#currency_icon').val().trim(),
+                currency_position	       : $('#currency_position').val(),
+                currency_conversion_rate   : $('#conversation_rate').val().trim(),
+                is_active                  : $('#isActive').is(':checked') ? 1 : 0,
+            }
+        }
+
+        function resetData(){
+            $('#currency_name').val(null),
+            $('#currency_icon').val(null),
+            $('#currency_position').val(null),
+            $('#conversation_rate').val(null),
+            $('#isActive').prop('checked', true)
         }
 
     </script>
